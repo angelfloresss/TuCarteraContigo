@@ -1,8 +1,19 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
+  
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('username');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
   const handleCardPress = (cardName) => {
     if (cardName === 'Licencia') {
       navigation.navigate('Licencia');
@@ -61,6 +72,11 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </ScrollView>
       
+      {/* Botón de Cerrar Sesión */}
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+      </TouchableOpacity>
+      
       {/* Barra de navegación inferior */}
       <View style={styles.tabBar}>
         {['home', 'wallet', 'notifications', 'profile'].map((icon, index) => (
@@ -77,7 +93,6 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-// Estilos permanecen iguales
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -152,6 +167,18 @@ const styles = StyleSheet.create({
   listItemText: {
     fontSize: 16,
     color: '#333',
+  },
+  logoutButton: {
+    backgroundColor: 'red',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 80, // espacio para que no se superponga con la tabBar
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   tabBar: {
     flexDirection: 'row',
