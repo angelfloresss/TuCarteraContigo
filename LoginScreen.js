@@ -1,27 +1,61 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [secureEntry, setSecureEntry] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
 
-  const handleLogin = async () => {
-    if (!username || !password) {
-      setErrorMessage('Por favor ingresa usuario y contraseña');
-      return;
+  useEffect(() => {
+    if (isFocused) {
+      setUsername('');
+      setPassword('');
+      setErrorMessage('');
     }
+  }, [isFocused]);
 
+  const handleLogin = async () => {
     try {
-      // Aquí iría tu lógica de autenticación real
-      // Por ahora solo guardamos el usuario en AsyncStorage
-      await AsyncStorage.setItem('username', username);
+      // Validar campos no vacíos
+      if (!username || !password) {
+        setErrorMessage('Por favor ingresa usuario y contraseña');
+        setIsLoading(false);
+        return;
+      }
+
+      // Buscar usuario en la API
+      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      const users = await response.json();
+
+      // Buscar coincidencia por username o email
+      const userFound = users.find(user => 
+        user.username.toLowerCase() === username.toLowerCase() || 
+        user.email.toLowerCase() === username.toLowerCase()
+      );
+
+      if (!userFound) {
+        setErrorMessage('Usuario y/o contraseña incorrecto(s)');
+        setIsLoading(false);
+        return;
+      }
+
+      // Validar que la contraseña sea "password"
+      if (password !== 'password') {
+        setErrorMessage('Usuario y/o contraseña incorrecto(s)');
+        setIsLoading(false);
+        return;
+      }
+
+      // Guardar usuario y navegar al Home
+      await AsyncStorage.setItem('currentUser', JSON.stringify(userFound));
       navigation.replace('Home');
     } catch (error) {
       console.error('Error al guardar el nombre de usuario:', error);
@@ -29,133 +63,120 @@ const LoginScreen = () => {
     }
   };
 
+  const navigateToSignUp = () => {
+    setUsername('');
+    setPassword('');
+    setErrorMessage('');
+    navigation.navigate('SignUp');
+  };
+
   return (
-    <LinearGradient 
-      colors={['#2D46FF', '#1A2FAB']} 
-      style={styles.container}
-      start={{x: 0, y: 0}} 
-      end={{x: 1, y: 1}}
-    >
-      <StatusBar barStyle="light-content" backgroundColor="#2D46FF" />
-      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+    <View style={styles.mainContainer}>
+      {/* Parte superior con gradiente azul */}
+      <LinearGradient 
+        colors={['#2D46FF', '#2D46FF']} 
+        style={styles.gradientContainer}
+        start={{x: 0, y: 0}} 
+        end={{x: 1, y: 0}}
       >
-        <View style={styles.content}>
-          {/* Icono */}
+        <StatusBar barStyle="light-content" backgroundColor="#2D46FF" />
+        
+        <View style={styles.headerContent}>
           <View style={styles.iconContainer}>
             <Icon name="wallet-outline" size={80} color="#fff" />
           </View>
-
           <Text style={styles.title}>TuCartera Contigo</Text>
+        </View>
+      </LinearGradient>
 
-          <View style={styles.formContainer}>
-            {errorMessage ? (
-              <View style={styles.errorContainer}>
-                <Icon name="warning-outline" size={20} color="#ff4444" />
-                <Text style={styles.errorText}>{errorMessage}</Text>
-              </View>
-            ) : null}
+      {/* Parte inferior blanca */}
+      <View style={styles.bottomContainer}>
+        <View style={styles.formContainer}>
+        {errorMessage ? (
+          <View style={styles.errorContainer}>
+            <Icon name="warning-outline" size={20} color="#ff4444" />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        ) : null}
 
-            <Text style={styles.label}>Usuario o correo</Text>
+          <Text style={styles.label}>Usuario o correo</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Ingresa tu usuario o email" 
+            placeholderTextColor="#aaa"
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          <Text style={styles.label}>Contraseña</Text>
+          <View style={styles.passwordContainer}>
             <TextInput 
-              style={styles.input} 
-              placeholder="Ingresa tu usuario o email" 
+              style={styles.passwordInput} 
+              secureTextEntry={secureEntry}
+              placeholder="Ingresa tu contraseña" 
               placeholderTextColor="#aaa"
-              value={username}
-              onChangeText={(text) => {
-                setUsername(text);
-                setErrorMessage('');
-              }}
-              autoCapitalize="none"
+              value={password}
+              onChangeText={setPassword}
             />
-
-            <Text style={styles.label}>Contraseña</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput 
-                style={styles.passwordInput} 
-                secureTextEntry={secureEntry}
-                placeholder="Ingresa tu contraseña" 
-                placeholderTextColor="#aaa"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setErrorMessage('');
-                }}
-              />
-              <TouchableOpacity 
-                style={styles.eyeIcon}
-                onPress={() => setSecureEntry(!secureEntry)}
-              >
-                <Icon 
-                  name={secureEntry ? 'eye-off-outline' : 'eye-outline'} 
-                  size={20} 
-                  color="#aaa" 
-                />
-              </TouchableOpacity>
-            </View>
-
             <TouchableOpacity 
-              style={styles.button}
-              onPress={handleLogin}
-              activeOpacity={0.8}
+              style={styles.eyeIcon}
+              onPress={() => setSecureEntry(!secureEntry)}
             >
-              <Text style={styles.buttonText}>Iniciar sesión</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.forgotButton}>
-              <Text style={styles.forgotText}>Crear cuenta</Text>
+              <Icon 
+                name={secureEntry ? 'eye-off-outline' : 'eye-outline'} 
+                size={20} 
+                color="#aaa" 
+              />
             </TouchableOpacity>
           </View>
-        </View>
-      </KeyboardAvoidingView>
 
-      <Text style={styles.footerText}>Todo a tu alcance, en cualquier momento</Text>
-    </LinearGradient>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Iniciar sesión</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.signUpButton} onPress={navigateToSignUp}>
+            <Text style={styles.signUpText}>¿No tienes cuenta? Crear cuenta</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.footerText}>Todo a tu alcance, en cualquier momento</Text>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
+    backgroundColor: '#F9F9F9',
+  },
+  gradientContainer: {
+    height: 350,
     justifyContent: 'center',
-  },
-  keyboardView: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  content: {
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  iconContainer: {
-    marginBottom: 20,
+  headerContent: {
     alignItems: 'center',
+  },
+  logo: {
+    marginBottom: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 40,
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 3,
   },
   formContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    paddingVertical: 30,
-    paddingHorizontal: 25,
-    width: '100%',
-    maxWidth: 400,
+    padding: 25,
+    marginHorizontal: 20,
+    marginTop: -70,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     elevation: 5,
   },
   errorContainer: {
@@ -168,79 +189,68 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ff4444',
-    marginLeft: 5,
+    marginLeft: 8,
     fontSize: 14,
   },
   label: {
     fontSize: 14,
     color: '#555',
-    marginBottom: 5,
+    marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    height: 45,
-    borderColor: '#2D46FF',
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: 25,
-    marginBottom: 20,
+    borderRadius: 8,
+    marginBottom: 15,
     paddingLeft: 15,
-    color: '#000',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#F9F9F9',
   },
   passwordContainer: {
     position: 'relative',
     marginBottom: 20,
   },
   passwordInput: {
-    height: 45,
-    borderColor: '#2D46FF',
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: 25,
+    borderRadius: 8,
     paddingLeft: 15,
-    color: '#000',
-    backgroundColor: '#f9f9f9',
-    paddingRight: 45,
+    paddingRight: 50,
+    backgroundColor: '#F9F9F9',
   },
   eyeIcon: {
     position: 'absolute',
     right: 15,
-    top: 12,
+    top: 15,
   },
   button: {
     backgroundColor: '#2D46FF',
-    paddingVertical: 15,
-    borderRadius: 25,
+    padding: 15,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: '#2D46FF',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 3,
-    elevation: 5,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  forgotButton: {
-    alignSelf: 'center',
+  signUpButton: {
+    alignItems: 'center',
     marginTop: 15,
   },
-  forgotText: {
+  signUpText: {
     color: '#2D46FF',
     fontSize: 14,
   },
   footerText: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.7)',
-    marginTop: 20,
-    marginBottom: 30,
     textAlign: 'center',
-  }
+    marginTop: 20,
+    color: '#666',
+    fontSize: 12,
+  },
 });
 
 export default LoginScreen;
