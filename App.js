@@ -12,18 +12,12 @@ const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{
-        headerStyle: {
-          backgroundColor: '#2A7E8D',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      }}>
+    <NavigationContainer initialRouteName="Login" screenOptions={{
+      headerTintColor: '#fff',
+    }}>
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Crear cuenta' }} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} options={{  headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio', headerLeft: null }} />
         <Stack.Screen name="Card" component={CardScreen} options={{ title: 'Detalle de tarjeta' }} />
         <Stack.Screen name="Recipes" component={RecipesScreen} options={{ title: 'Recibos' }} />

@@ -192,6 +192,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
   },
+  iconContainer: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
   label: {
     fontSize: 14,
     color: '#555',
