@@ -3,6 +3,20 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = ({ navigation }) => {
+  const handleCardPress = (cardName) => {
+    if (cardName === 'Licencia') {
+      navigation.navigate('Licencia');
+    } else if (cardName === 'Recibos') {
+      navigation.navigate('Recipes');
+    } else if (cardName === 'SuSalud') {
+      navigation.navigate('SuSalud');
+    } else if (cardName === 'ID Digital') {
+      navigation.navigate('IdentidadDigital');
+    } else {
+      navigation.navigate('Card');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -18,7 +32,7 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity 
                 key={index}
                 style={styles.card}
-                onPress={() => navigation.navigate('Card')}
+                onPress={() => handleCardPress(card)}
               >
                 <View style={styles.cardIcon}>
                   <Ionicons name="card" size={24} color="#2A7E8D" />
@@ -37,7 +51,7 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity 
                 key={index}
                 style={styles.listItem}
-                onPress={() => item === 'Recibos' && navigation.navigate('Recipes')}
+                onPress={() => handleCardPress(item)}
               >
                 <Text style={styles.listItemText}>{item}</Text>
                 <Ionicons name="chevron-forward" size={20} color="#999" />
@@ -63,6 +77,7 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
+// Estilos permanecen iguales
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -70,7 +85,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    backgroundColor: '#2A7E8D',
+    backgroundColor: '#2E4AFF',
   },
   greeting: {
     fontSize: 22,

@@ -10,11 +10,12 @@ const CardScreen = () => {
       </View>
       
       <View style={styles.card}>
-        <Text style={styles.cardName}>Nombre Tarjeta</Text>
-        <Text style={styles.cardNumber}>1246 3313 5620</Text>
+        <Text style={styles.cardName}>Qrobus</Text>
+        <Text style={styles.cardType}>Tipo de tarjeta: General</Text>
+        <Text style={styles.cardNumber}>12463313562</Text>
         
         <View style={styles.balanceContainer}>
-          <Text style={styles.balanceLabel}>Saldo Disponible</Text>
+          <Text style={styles.balanceLabel}>Saldo:</Text>
           <Text style={styles.balanceAmount}>$100.00</Text>
         </View>
       </View>
@@ -26,14 +27,14 @@ const CardScreen = () => {
           { icon: 'lock-closed', label: 'Bloqueo' }
         ].map((action, index) => (
           <TouchableOpacity key={index} style={styles.actionButton}>
-            <Ionicons name={action.icon} size={28} color="#2A7E8D" />
+            <Ionicons name={action.icon} size={28} color="#00A8A8" />
             <Text style={styles.actionLabel}>{action.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
       
       <TouchableOpacity style={styles.deleteButton}>
-        <Text style={styles.deleteText}>Eliminar tarjeta</Text>
+        <Text style={styles.deleteText}>Eliminar</Text>
       </TouchableOpacity>
     </View>
   );
@@ -42,7 +43,7 @@ const CardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFFFFF', // Fondo blanco puro
     padding: 20,
   },
   header: {
@@ -51,45 +52,54 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 16,
-    color: '#666',
+    color: '#000000', // Negro puro
+    fontWeight: '500',
   },
   card: {
-    backgroundColor: '#2A7E8D',
+    backgroundColor: '#00A8A8', // Verde azulado más vibrante
     borderRadius: 15,
     padding: 25,
     marginBottom: 30,
     elevation: 5,
   },
   cardName: {
-    fontSize: 18,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 5,
+    fontSize: 20,
+    color: 'white',
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  cardType: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.9)', // Blanco con muy poca transparencia
+    marginBottom: 20,
   },
   cardNumber: {
-    fontSize: 22,
+    fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
-    letterSpacing: 2,
     marginBottom: 30,
+    letterSpacing: 0.5,
   },
   balanceContainer: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.2)',
+    borderTopColor: 'rgba(255,255,255,0.4)', // Borde más visible
     paddingTop: 15,
   },
   balanceLabel: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.9)', // Blanco casi sólido
   },
   balanceAmount: {
     fontSize: 28,
     color: 'white',
     fontWeight: 'bold',
+    marginTop: 5,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 30,
+    paddingHorizontal: 20,
   },
   actionButton: {
     alignItems: 'center',
@@ -97,16 +107,18 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     marginTop: 8,
-    color: '#666',
-    fontSize: 14,
+    color: '#00A8A8', // Mismo color que la tarjeta
+    fontSize: 15,
+    fontWeight: '600',
   },
   deleteButton: {
     alignItems: 'center',
     padding: 15,
   },
   deleteText: {
-    color: 'red',
+    color: '#FF3B30', // Rojo brillante
     fontSize: 16,
+    fontWeight: '600',
   },
 });
 

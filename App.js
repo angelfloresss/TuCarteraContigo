@@ -7,6 +7,9 @@ import HomeScreen from './HomeScreen';
 import CardScreen from './CardScreen';
 import RecipesScreen from './RecipesListScreen';
 import RecipeDetailScreen from './RecipeScreen';
+import LicenciaScreen from './LicenciaScreen';
+import SuSaludScreen from './SuSaludScreen';
+import IdentidadDigitalScreen from './IdentidadDigitalScreen';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +25,9 @@ export default function App() {
         <Stack.Screen name="Card" component={CardScreen} options={{ title: 'Detalle de tarjeta' }} />
         <Stack.Screen name="Recipes" component={RecipesScreen} options={{ title: 'Recibos' }} />
         <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} options={{ title: 'Detalle de recibo' }} />
+        <Stack.Screen name="Licencia" component={LicenciaScreen} options={{ title: 'Licencia' }} />
+        <Stack.Screen name="SuSalud" component={SuSaludScreen} options={{ title: 'SuSalud' }} />
+        <Stack.Screen name="IdentidadDigital" component={IdentidadDigitalScreen} options={{ title: 'IdentidadDigital' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

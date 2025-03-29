@@ -27,41 +27,37 @@ const LoginScreen = () => {
       // Validar campos no vacíos
       if (!username || !password) {
         setErrorMessage('Por favor ingresa usuario y contraseña');
-        setIsLoading(false);
         return;
       }
-
-      // Buscar usuario en la API
-      const response = await fetch('https://jsonplaceholder.typicode.com/users');
-      const users = await response.json();
-
-      // Buscar coincidencia por username o email
-      const userFound = users.find(user => 
-        user.username.toLowerCase() === username.toLowerCase() || 
-        user.email.toLowerCase() === username.toLowerCase()
-      );
-
-      if (!userFound) {
-        setErrorMessage('Usuario y/o contraseña incorrecto(s)');
-        setIsLoading(false);
+  
+      // Obtener los datos almacenados localmente
+      const storedUser = await AsyncStorage.getItem('userData');
+  
+      if (!storedUser) {
+        setErrorMessage('No hay usuarios registrados. Crea una cuenta primero.');
         return;
       }
-
-      // Validar que la contraseña sea "password"
-      if (password !== 'password') {
-        setErrorMessage('Usuario y/o contraseña incorrecto(s)');
-        setIsLoading(false);
-        return;
+  
+      const userData = JSON.parse(storedUser);
+  
+      // Validar credenciales
+      if (
+        (userData.usuario.toLowerCase() === username.toLowerCase() || 
+        userData.correo.toLowerCase() === username.toLowerCase()) &&
+        userData.contrasena === password
+      ) {
+        // Guardar sesión activa y navegar al Home
+        await AsyncStorage.setItem('currentUser', JSON.stringify(userData));
+        navigation.replace('Home');
+      } else {
+        setErrorMessage('Usuario y/o contraseña incorrectos');
       }
-
-      // Guardar usuario y navegar al Home
-      await AsyncStorage.setItem('currentUser', JSON.stringify(userFound));
-      navigation.replace('Home');
     } catch (error) {
-      console.error('Error al guardar el nombre de usuario:', error);
+      console.error('Error al iniciar sesión:', error);
       setErrorMessage('Ocurrió un error al iniciar sesión');
     }
   };
+  
 
   const navigateToSignUp = () => {
     setUsername('');
